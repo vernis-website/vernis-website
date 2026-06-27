@@ -442,6 +442,24 @@
     flex-wrap:wrap;gap:16px;
   }
   .cart-total{font-size:1.2rem;font-family:'Fraunces',serif;color:var(--glow);}
+
+  @media(max-width:760px){
+    nav{
+      flex-wrap:wrap;
+      padding:16px 5vw;
+      row-gap:10px;
+    }
+    nav .links{
+      width:100%;
+      gap:16px;
+      overflow-x:auto;
+      white-space:nowrap;
+      padding-bottom:6px;
+      -ms-overflow-style:none;
+      scrollbar-width:none;
+    }
+    nav .links::-webkit-scrollbar{display:none;}
+  }
 </style>
 </head>
 <body>
@@ -480,12 +498,14 @@
     <div class="eyebrow">Refer & Earn</div>
     <h2 class="display">Your Referral Code</h2>
     <p style="opacity:0.7;margin-bottom:20px;font-size:0.92rem;">Share this code. When 5 people sign up using it, you'll automatically get a 30% off code.</p>
-    <div class="referral-box">
-      <div class="referral-code" id="referral-code-text">—</div>
-      <button class="copy-btn" onclick="copyReferral()">Copy Code</button>
+    <div id="referral-content">
+      <div class="referral-box">
+        <div class="referral-code" id="referral-code-text">—</div>
+        <button class="copy-btn" onclick="copyReferral()">Copy Code</button>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="referral-progress-fill" style="width:0%;"></div></div>
+      <div class="progress-label" id="referral-progress-label">0 of 5 referrals used</div>
     </div>
-    <div class="progress-track"><div class="progress-fill" id="referral-progress-fill" style="width:0%;"></div></div>
-    <div class="progress-label" id="referral-progress-label">0 of 5 referrals used</div>
   </div>
 
   <!-- REWARDS -->
@@ -531,10 +551,16 @@ async function init(){
   const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
   if(profile){
     document.getElementById('acc-name').textContent = profile.full_name ? `Welcome, ${profile.full_name.split(' ')[0]}` : "My Account";
-    document.getElementById('referral-code-text').textContent = profile.referral_code || '—';
-    const uses = profile.referral_uses_count || 0;
-    document.getElementById('referral-progress-fill').style.width = Math.min(100, (uses/5)*100) + '%';
-    document.getElementById('referral-progress-label').textContent = `${uses} of 5 referrals used`;
+
+    if(profile.referral_code){
+      document.getElementById('referral-code-text').textContent = profile.referral_code;
+      const uses = profile.referral_uses_count || 0;
+      document.getElementById('referral-progress-fill').style.width = Math.min(100, (uses/5)*100) + '%';
+      document.getElementById('referral-progress-label').textContent = `${uses} of 5 referrals used`;
+    } else {
+      document.getElementById('referral-content').innerHTML =
+        '<div class="empty-state">Your referral code unlocks after your first order — place one to get yours.</div>';
+    }
   }
 
   loadRewards();

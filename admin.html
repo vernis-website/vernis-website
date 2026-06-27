@@ -411,6 +411,24 @@
   }
   .denied h1{font-size:1.6rem;margin-bottom:10px;}
   .denied p{opacity:0.6;}
+
+  @media(max-width:760px){
+    nav{
+      flex-wrap:wrap;
+      padding:16px 5vw;
+      row-gap:10px;
+    }
+    nav .links{
+      width:100%;
+      gap:16px;
+      overflow-x:auto;
+      white-space:nowrap;
+      padding-bottom:6px;
+      -ms-overflow-style:none;
+      scrollbar-width:none;
+    }
+    nav .links::-webkit-scrollbar{display:none;}
+  }
 </style>
 </head>
 <body>

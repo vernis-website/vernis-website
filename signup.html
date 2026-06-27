@@ -416,6 +416,24 @@
   }
   .auth-msg.error{background:rgba(255,100,100,0.1);border:1px solid rgba(255,100,100,0.4);color:#ff9b9b;}
   .auth-msg.success{background:rgba(127,255,212,0.08);border:1px solid var(--line);color:var(--glow);}
+
+  @media(max-width:760px){
+    nav{
+      flex-wrap:wrap;
+      padding:16px 5vw;
+      row-gap:10px;
+    }
+    nav .links{
+      width:100%;
+      gap:16px;
+      overflow-x:auto;
+      white-space:nowrap;
+      padding-bottom:6px;
+      -ms-overflow-style:none;
+      scrollbar-width:none;
+    }
+    nav .links::-webkit-scrollbar{display:none;}
+  }
 </style>
 </head>
 <body>
