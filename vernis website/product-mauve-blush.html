@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mauve Blush — Vernis Cat Eye Nail Lacquer</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --obsidian:#0E0F12;
+    --emerald:#163C32;
+    --gold:#C9A876;
+    --glow:#7FFFD4;
+    --cream:#F5F1E8;
+    --charcoal:#1B1C20;
+    --line: rgba(245,241,232,0.14);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  @font-face{
+    font-family:'FrauncesFallback';
+    src:local('Georgia');
+  }
+
+  body{
+    background:var(--obsidian);
+    color:var(--cream);
+    font-family:'Outfit','Segoe UI',sans-serif;
+    overflow-x:hidden;
+  }
+
+  h1,h2,h3,.display{
+    font-family:'Fraunces','Georgia',serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+
+  a{color:inherit;text-decoration:none;}
+
+  /* ============ NAV ============ */
+  nav{
+    position:fixed;top:0;left:0;right:0;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:22px 6vw;
+    z-index:50;
+    background:linear-gradient(to bottom, rgba(14,15,18,0.85), transparent);
+    backdrop-filter:blur(2px);
+  }
+  .logo{font-size:1.4rem;letter-spacing:0.18em;text-transform:uppercase;}
+  .logo span{color:var(--glow);}
+  nav .links{display:flex;gap:32px;font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;opacity:0.85;}
+  nav .links a:hover{color:var(--gold);}
+
+  /* ============ HERO ============ */
+  .hero{
+    min-height:100vh;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    text-align:center;
+    position:relative;
+    padding:0 6vw;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(127,255,212,0.07), transparent 60%),
+      var(--obsidian);
+  }
+
+  .eyebrow{
+    font-size:0.75rem;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:22px;
+    opacity:0.9;
+  }
+
+  .hero h1{
+    font-size:clamp(3.5rem, 11vw, 8.5rem);
+    line-height:0.92;
+    position:relative;
+    background:linear-gradient(100deg, var(--cream) 35%, var(--glow) 50%, var(--gold) 58%, var(--cream) 70%);
+    background-size:300% 100%;
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    animation: sweep 6s ease-in-out infinite;
+  }
+
+  @keyframes sweep{
+    0%{background-position: 100% 0;}
+    50%{background-position: 0% 0;}
+    100%{background-position: 100% 0;}
+  }
+
+  .hero p.sub{
+    margin-top:26px;
+    font-size:1.05rem;
+    max-width:480px;
+    opacity:0.78;
+    line-height:1.6;
+  }
+
+  .hero-cta{
+    margin-top:42px;
+    display:flex;gap:16px;flex-wrap:wrap;justify-content:center;
+  }
+  .btn{
+    padding:14px 32px;
+    border-radius:2px;
+    font-size:0.8rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    border:1px solid var(--line);
+    transition:all .35s ease;
+    cursor:pointer;
+    background:transparent;
+  }
+  .btn-fill{
+    background:var(--cream);
+    color:var(--obsidian);
+    border-color:var(--cream);
+  }
+  .btn-fill:hover{background:var(--glow);border-color:var(--glow);}
+  .btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+
+  .scroll-cue{
+    position:absolute;bottom:36px;
+    font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;
+    opacity:0.5;
+    animation:bob 2.4s ease-in-out infinite;
+  }
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+
+  /* ============ SIGNATURE: MAGNET SWATCH ============ */
+  .swatch-section{
+    padding:140px 6vw 120px;
+    border-top:1px solid var(--line);
+  }
+  .section-head{
+    text-align:center;max-width:620px;margin:0 auto 70px;
+  }
+  .section-head .eyebrow{margin-bottom:14px;}
+  .section-head h2{font-size:clamp(2.2rem,5vw,3.4rem);}
+  .section-head p{margin-top:18px;opacity:0.72;line-height:1.7;font-size:1rem;}
+
+  .swatch-row{
+    display:flex;justify-content:center;gap:60px;flex-wrap:wrap;
+  }
+
+  .swatch-card{
+    width:230px;text-align:center;
+  }
+
+  .swatch{
+    width:230px;height:230px;
+    border-radius:50%;
+    position:relative;
+    margin:0 auto 24px;
+    background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.5), transparent 22%),
+                conic-gradient(from 200deg, var(--shade1) 0deg, var(--shade2) 90deg, var(--shade1) 180deg, var(--shade2) 270deg, var(--shade1) 360deg);
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.5), 0 18px 50px rgba(0,0,0,0.5);
+    overflow:hidden;
+    transition:transform .5s ease;
+  }
+  .swatch::before{
+    content:'';
+    position:absolute;inset:0;
+    background:linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.55) 48%, transparent 60%);
+    background-size:250% 250%;
+    background-position:120% 0;
+    transition:background-position 1s ease;
+  }
+  .swatch-card:hover .swatch::before{background-position:-20% 0;}
+  .swatch-card:hover .swatch{transform:scale(1.04) rotate(2deg);}
+
+  .s-emerald{--shade1:#0d3b2c; --shade2:#3ddc97;}
+  .s-amber{--shade1:#3a2308; --shade2:#e0a956;}
+  .s-violet{--shade1:#241338; --shade2:#9b7bd6;}
+  .s-mauve{--shade1:#5a2f3a; --shade2:#e8b9c4;}
+  .s-rosegold{--shade1:#6b4226; --shade2:#e8c79a;}
+  .s-amethyst{--shade1:#3a1f4d; --shade2:#b48ce0;}
+  .s-grenat{--shade1:#5c0f2e; --shade2:#d6447a;}
+  .s-fuchsianuit{--shade1:#3d0a2e; --shade2:#a83d8a;}
+
+  .swatch-card.soon{position:relative;}
+  .swatch-card.soon .tag{
+    display:inline-block;
+    margin-top:14px;
+    padding:5px 14px;
+    font-size:0.68rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    border:1px solid var(--gold);
+    color:var(--gold);
+    border-radius:20px;
+    opacity:0.9;
+  }
+
+  .swatch-card h3{font-size:1.1rem;margin-bottom:6px;}
+  .swatch-card span{font-size:0.78rem;opacity:0.6;letter-spacing:0.05em;}
+
+  /* ============ ABOUT / STORY ============ */
+  .story{
+    padding:120px 6vw;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:70px;
+    align-items:center;
+    border-top:1px solid var(--line);
+  }
+  .story-visual{
+    height:420px;
+    border-radius:4px;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(127,255,212,0.25), transparent 45%),
+      radial-gradient(circle at 70% 70%, rgba(201,168,118,0.2), transparent 50%),
+      var(--charcoal);
+    position:relative;
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .story-visual .word{
+    font-family:'Fraunces',serif;
+    font-size:5rem;
+    color:rgba(245,241,232,0.07);
+    letter-spacing:0.05em;
+  }
+  .story h2{font-size:clamp(2rem,4vw,2.8rem);margin-bottom:24px;}
+  .story p{opacity:0.75;line-height:1.85;font-size:1.02rem;margin-bottom:18px;}
+
+  /* ============ JOURNEY / GROWING LINE ============ */
+  .journey{
+    padding:120px 6vw;
+    border-top:1px solid var(--line);
+    text-align:center;
+  }
+  .journey-track{
+    max-width:900px;margin:70px auto 0;
+    position:relative;
+    display:flex;justify-content:space-between;
+  }
+  .journey-track::before{
+    content:'';position:absolute;top:11px;left:0;right:0;height:1px;
+    background:linear-gradient(to right, var(--glow), var(--gold));
+    opacity:0.4;
+  }
+  .stop{flex:1;position:relative;padding-top:36px;}
+  .stop::before{
+    content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:11px;height:11px;border-radius:50%;
+    background:var(--obsidian);border:2px solid var(--glow);
+  }
+  .stop.active::before{background:var(--glow);}
+  .stop h4{font-size:0.95rem;margin-bottom:8px;}
+  .stop p{font-size:0.82rem;opacity:0.6;line-height:1.5;max-width:160px;margin:0 auto;}
+
+  /* ============ REVIEW / DISCOUNT BANNER ============ */
+  .banner{
+    margin:0 6vw 0;
+    padding:80px 6vw;
+    border-radius:6px;
+    background:linear-gradient(120deg, rgba(127,255,212,0.08), rgba(201,168,118,0.08));
+    border:1px solid var(--line);
+    text-align:center;
+  }
+  .banner h2{font-size:clamp(1.8rem,4vw,2.6rem);margin-bottom:18px;}
+  .banner p{opacity:0.75;max-width:520px;margin:0 auto 30px;line-height:1.7;}
+
+  /* ============ FOOTER ============ */
+  footer{
+    padding:80px 6vw 40px;
+    border-top:1px solid var(--line);
+    margin-top:100px;
+    display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:30px;
+  }
+  footer .logo{font-size:1.2rem;}
+  footer .links{display:flex;gap:26px;font-size:0.8rem;opacity:0.7;}
+  footer .copy{width:100%;text-align:center;margin-top:50px;font-size:0.72rem;opacity:0.4;letter-spacing:0.05em;}
+
+  @media(max-width:760px){
+    .story{grid-template-columns:1fr;}
+    .journey-track{flex-direction:column;gap:30px;}
+    .journey-track::before{display:none;}
+    .stop{padding-top:0;padding-left:30px;}
+    .stop::before{top:4px;left:0;transform:none;}
+    .swatch-row{gap:36px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .hero h1{animation:none;}
+    .scroll-cue{animation:none;}
+  }
+
+  ::selection{background:var(--glow);color:var(--obsidian);}
+
+  /* ============ ORDER FORM ============ */
+  .order-section{
+    padding:120px 6vw;
+    border-top:1px solid var(--line);
+  }
+  .order-box{
+    max-width:560px;margin:0 auto;
+    background:var(--charcoal);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:48px;
+  }
+  .order-box label{
+    display:block;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;
+    opacity:0.7;margin-bottom:8px;margin-top:22px;
+  }
+  .order-box label:first-of-type{margin-top:0;}
+  .order-box input, .order-box select, .order-box textarea{
+    width:100%;padding:13px 14px;
+    background:var(--obsidian);
+    border:1px solid var(--line);
+    border-radius:4px;
+    color:var(--cream);
+    font-family:'Outfit',sans-serif;
+    font-size:0.95rem;
+  }
+  .order-box input:focus, .order-box select:focus, .order-box textarea:focus{
+    outline:none;border-color:var(--glow);
+  }
+  .order-row{display:flex;gap:16px;}
+  .order-row > div{flex:1;}
+  .order-total{
+    margin-top:28px;padding-top:22px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:1.05rem;
+  }
+  .order-total span:last-child{color:var(--gold);font-weight:600;}
+  .order-submit{
+    width:100%;margin-top:26px;padding:16px;
+    background:var(--glow);color:var(--obsidian);
+    border:none;border-radius:4px;
+    font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;
+    cursor:pointer;transition:opacity .3s;
+  }
+  .order-submit:hover{opacity:0.85;}
+  .order-note{font-size:0.78rem;opacity:0.55;margin-top:16px;text-align:center;line-height:1.6;}
+
+  .upload-box{
+    border:1.5px dashed var(--line);
+    border-radius:6px;
+    padding:24px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color .3s;
+  }
+  .upload-box:hover{border-color:var(--gold);}
+  .upload-box input{display:none;}
+  .upload-hint{font-size:0.78rem;opacity:0.6;margin-top:10px;line-height:1.6;}
+  .preview-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+  .preview-row img{width:64px;height:64px;object-fit:cover;border-radius:4px;border:1px solid var(--line);}
+
+  .gift-options{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+  .gift-option{
+    display:flex;align-items:flex-start;gap:10px;
+    padding:14px;border:1px solid var(--line);border-radius:6px;
+    cursor:pointer;transition:border-color .25s;
+  }
+  .gift-option:hover{border-color:var(--gold);}
+  .gift-option input{margin-top:3px;}
+  .gift-option .g-title{font-size:0.92rem;font-weight:500;}
+  .gift-option .g-price{color:var(--gold);font-size:0.8rem;}
+  .gift-option .g-desc{font-size:0.78rem;opacity:0.6;margin-top:3px;}
+  .gift-quote-box{margin-top:12px;display:none;}
+  .quote-examples{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
+  .quote-chip{
+    font-size:0.72rem;padding:6px 12px;border:1px solid var(--line);
+    border-radius:20px;cursor:pointer;opacity:0.75;transition:all .25s;
+  }
+  .quote-chip:hover{border-color:var(--glow);color:var(--glow);opacity:1;}
+
+  /* ============ PRODUCT PAGE SPECIFIC ============ */
+  .breadcrumb{
+    padding:120px 6vw 0;
+    font-size:0.78rem;
+    opacity:0.6;
+    letter-spacing:0.05em;
+  }
+  .breadcrumb a{color:var(--glow);}
+  .breadcrumb a:hover{text-decoration:underline;}
+
+  .product-hero{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:70px;
+    padding:50px 6vw 100px;
+    align-items:start;
+  }
+
+  .gallery-main{
+    width:100%;
+    aspect-ratio:1/1;
+    border-radius:8px;
+    background:
+      radial-gradient(circle at 35% 28%, rgba(255,255,255,0.45), transparent 22%),
+      conic-gradient(from 200deg, #5a2f3a 0deg, #e8b9c4 90deg, #5a2f3a 180deg, #e8b9c4 270deg, #5a2f3a 360deg);
+    box-shadow: inset 0 0 60px rgba(0,0,0,0.5), 0 20px 60px rgba(0,0,0,0.5);
+    position:relative;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .gallery-main::before{
+    content:'';
+    position:absolute;inset:0;
+    background:linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.5) 48%, transparent 60%);
+    background-size:250% 250%;
+    background-position:120% 0;
+    animation: galshine 5s ease-in-out infinite;
+  }
+  @keyframes galshine{
+    0%,100%{background-position:120% 0;}
+    50%{background-position:-20% 0;}
+  }
+  .gallery-note{
+    text-align:center;
+    font-size:0.78rem;
+    opacity:0.55;
+    margin-top:14px;
+    letter-spacing:0.03em;
+  }
+  .thumb-row{display:flex;gap:14px;margin-top:18px;}
+  .thumb{
+    width:70px;height:70px;border-radius:6px;
+    border:1px solid var(--line);
+    background:
+      radial-gradient(circle at 35% 28%, rgba(255,255,255,0.4), transparent 22%),
+      conic-gradient(from 200deg, #5a2f3a 0deg, #e8b9c4 90deg, #5a2f3a 180deg, #e8b9c4 270deg, #5a2f3a 360deg);
+    opacity:0.55;
+    cursor:pointer;
+    transition:opacity .3s;
+  }
+  .thumb.active, .thumb:hover{opacity:1;border-color:var(--gold);}
+
+  .product-info .eyebrow{margin-bottom:10px;}
+  .product-info h1{font-size:clamp(2.2rem,4vw,3rem);margin-bottom:14px;}
+  .price-tag{
+    font-size:1.6rem;font-family:'Fraunces',serif;color:var(--glow);
+    margin-bottom:22px;
+  }
+  .price-tag span{font-size:0.95rem;opacity:0.6;color:var(--cream);margin-left:10px;}
+  .product-info p.desc{opacity:0.78;line-height:1.8;margin-bottom:26px;}
+
+  .spec-list{
+    list-style:none;
+    margin-bottom:30px;
+    border-top:1px solid var(--line);
+    padding-top:20px;
+  }
+  .spec-list li{
+    display:flex;justify-content:space-between;
+    padding:10px 0;
+    border-bottom:1px solid var(--line);
+    font-size:0.92rem;
+  }
+  .spec-list li span:first-child{opacity:0.6;}
+
+  .includes-box{
+    background:rgba(127,255,212,0.05);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:18px 20px;
+    margin-bottom:30px;
+    font-size:0.9rem;
+    line-height:1.7;
+    opacity:0.9;
+  }
+  .includes-box strong{color:var(--gold);}
+
+  .anchor-cta{
+    display:flex;gap:14px;flex-wrap:wrap;
+  }
+
+  /* ============ REVIEWS ============ */
+  .reviews-section{
+    padding:80px 6vw 100px;
+    border-top:1px solid var(--line);
+  }
+  .reviews-empty{
+    max-width:480px;margin:50px auto 0;
+    text-align:center;
+    padding:50px 30px;
+    border:1px dashed var(--line);
+    border-radius:8px;
+  }
+  .stars-outline{
+    font-size:1.8rem;
+    letter-spacing:6px;
+    color:var(--line);
+    margin-bottom:18px;
+  }
+  .reviews-empty h3{font-size:1.3rem;margin-bottom:10px;}
+  .reviews-empty p{opacity:0.65;font-size:0.92rem;line-height:1.7;margin-bottom:22px;}
+
+  @media(max-width:760px){
+    .product-hero{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" style="text-decoration:none;color:inherit;">
+  <div class="logo" style="display:flex;align-items:center;gap:10px;">
+    <svg width="34" height="34" viewBox="0 0 200 200" style="flex-shrink:0;">
+      <defs>
+        <linearGradient id="navshine" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#C9A876"/>
+          <stop offset="50%" stop-color="#7FFFD4"/>
+          <stop offset="100%" stop-color="#C9A876"/>
+        </linearGradient>
+      </defs>
+      <circle cx="100" cy="100" r="92" fill="none" stroke="#C9A876" stroke-width="2" opacity="0.6"/>
+      <path d="M70 95 L100 158 L130 95" fill="none" stroke="url(#navshine)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+      <ellipse cx="100" cy="112" rx="4" ry="11" fill="#F5F1E8" opacity="0.9" transform="rotate(15 100 112)"/>
+    </svg>
+    VERN<span>I</span>S
+  </div>
+  </a>
+  <div class="links">
+    <a href="index.html#shades">Shades</a>
+    <a href="index.html#story">Story</a>
+    <a href="index.html#journey">Journey</a>
+    <a href="index.html#contact">Contact</a>
+    <a href="account.html">Account</a>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="index.html">Home</a> / <a href="index.html#shades">Shades</a> / Mauve Blush
+</div>
+
+<section class="product-hero">
+  <div>
+    <div class="gallery-main" id="gallery-main"></div>
+    <div class="gallery-note">📸 Real product photos coming soon — this is a colour preview</div>
+    <div class="thumb-row">
+      <div class="thumb active"></div>
+      <div class="thumb"></div>
+      <div class="thumb"></div>
+    </div>
+  </div>
+
+  <div class="product-info">
+    <div class="eyebrow">Available Now</div>
+    <h1 class="display">Mauve Blush</h1>
+    <div class="price-tag">₹399 <span>· Soak-off Gel</span></div>
+    <p class="desc">Our founding shade — a soft rose-mauve with a true magnetic cat-eye shimmer. The pigment shifts and deepens near the cuticle, catching light differently with every angle you tilt your hand.</p>
+
+    <ul class="spec-list">
+      <li><span>Finish</span><span>Magnetic Cat Eye</span></li>
+      <li><span>Cure Type</span><span>UV/LED Lamp Required</span></li>
+      <li><span>Net Quantity</span><span>1 Set of Nails</span></li>
+      <li><span>Application</span><span>2 coats + top coat recommended</span></li>
+    </ul>
+
+    <div class="includes-box">
+      <strong>Every order includes, complimentary:</strong> a nail buffer and glue tips, plus a handwritten thank-you card — small extras, on us.
+    </div>
+
+    <div class="anchor-cta">
+      <a class="btn btn-fill" href="#order">Order via WhatsApp →</a>
+      <button class="btn btn-outline" id="cart-btn" onclick="addToCart()">Add to Cart</button>
+      <button class="btn btn-outline" id="wishlist-btn" onclick="addToWishlist()">♡ Wishlist</button>
+    </div>
+    <div id="auth-note" style="margin-top:14px;font-size:0.82rem;opacity:0.6;"></div>
+  </div>
+</section>
+
+<section class="reviews-section">
+  <div class="section-head">
+    <div class="eyebrow">Reviews</div>
+    <h2 class="display">What Customers Are Saying</h2>
+  </div>
+  <div class="reviews-empty">
+    <div class="stars-outline">☆☆☆☆☆</div>
+    <h3>Be the First to Review</h3>
+    <p>Vernis just launched, so there are no reviews yet — but we'd love for yours to be the first. Order now, and tag us or message your feedback after you try it.</p>
+    <a class="btn btn-outline" href="https://www.instagram.com/maisonvernisofficial/" target="_blank">Share Your Experience</a>
+  </div>
+</section>
+
+<section class="order-section" id="order">
+  <div class="section-head">
+    <div class="eyebrow">Checkout</div>
+    <h2 class="display">Place Your Order</h2>
+    <p>Fill in your details below — we'll confirm everything over WhatsApp and share payment instructions.</p>
+  </div>
+
+  <div class="order-box">
+    <label for="ord-shade">Shade</label>
+    <select id="ord-shade">
+      <option value="Mauve Blush (₹399)">Mauve Blush — ₹399 (Available Now)</option>
+    </select>
+
+    <label for="ord-qty">Quantity</label>
+    <input type="number" id="ord-qty" min="1" value="1">
+
+    <label for="ord-name">Full Name</label>
+    <input type="text" id="ord-name" placeholder="Your name">
+
+    <div class="order-row">
+      <div>
+        <label for="ord-phone">Phone Number</label>
+        <input type="tel" id="ord-phone" placeholder="10-digit mobile number">
+      </div>
+      <div>
+        <label for="ord-pincode">Pincode</label>
+        <input type="text" id="ord-pincode" placeholder="6-digit pincode">
+      </div>
+    </div>
+
+    <label for="ord-address">Delivery Address</label>
+    <textarea id="ord-address" rows="3" placeholder="House no., street, city, state"></textarea>
+
+    <label>Nail Size Photos (for a perfect fit)</label>
+    <div class="upload-box" onclick="document.getElementById('ord-photos').click()">
+      <input type="file" id="ord-photos" accept="image/*" multiple onchange="handlePhotos(event)">
+      <div>📸 Tap to select photos (up to 5)</div>
+      <div class="upload-hint">
+        Place a coin (₹1 or ₹5) right next to your nail in each photo — this helps us size your nails perfectly. One clear photo per hand works well, or one per nail if you'd like extra precision.
+      </div>
+      <div class="preview-row" id="ord-photo-preview"></div>
+    </div>
+
+    <label>Is This a Gift?</label>
+    <div class="gift-options">
+      <label class="gift-option">
+        <input type="radio" name="giftopt" value="none" checked onchange="updateGiftUI()">
+        <div>
+          <div class="g-title">No special packaging</div>
+          <div class="g-desc">Standard packaging, no extra charge</div>
+        </div>
+      </label>
+      <label class="gift-option">
+        <input type="radio" name="giftopt" value="packaging" onchange="updateGiftUI()">
+        <div>
+          <div class="g-title">Special Packaging <span class="g-price">+₹100</span></div>
+          <div class="g-desc">Gift-ready wrapping, no note included</div>
+        </div>
+      </label>
+      <label class="gift-option">
+        <input type="radio" name="giftopt" value="quote" onchange="updateGiftUI()">
+        <div>
+          <div class="g-title">Gift Quote Card <span class="g-price">+₹30</span></div>
+          <div class="g-desc">A small printed note with your message, standard packaging</div>
+        </div>
+      </label>
+      <label class="gift-option">
+        <input type="radio" name="giftopt" value="both" onchange="updateGiftUI()">
+        <div>
+          <div class="g-title">Special Packaging + Gift Quote <span class="g-price">+₹130</span></div>
+          <div class="g-desc">Gift-ready wrapping with your personal note</div>
+        </div>
+      </label>
+    </div>
+
+    <div class="gift-quote-box" id="gift-quote-box">
+      <label>Choose a Quote or Write Your Own</label>
+      <div class="quote-examples">
+        <div class="quote-chip" onclick="setQuote('Wishing you sparkle in every little thing you do ✨')">Sparkle wish</div>
+        <div class="quote-chip" onclick="setQuote('A little shine, just for you. Happy celebrating! 🤍')">Celebration</div>
+        <div class="quote-chip" onclick="setQuote('Because your hands deserve something pretty too 💅')">Sweet & simple</div>
+      </div>
+      <textarea id="ord-giftquote" rows="2" placeholder="Write your own gift message, or pick one above"></textarea>
+    </div>
+
+    <div class="order-total">
+      <span>Estimated Total</span>
+      <span id="ord-total">₹399</span>
+    </div>
+
+    <button class="order-submit" onclick="placeOrder()">Place Order via WhatsApp →</button>
+    <p class="order-note">You'll be redirected to WhatsApp with your order pre-filled. If you selected nail photos, please attach the same photos in the WhatsApp chat too — they can't be sent automatically through this form. Nothing is charged yet — we'll confirm and share UPI payment details there.</p>
+  </div>
+</section>
+<script src="supabase-config.js"></script>
+<script>
+  let loggedInUser = null;
+
+  async function checkAuth(){
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const note = document.getElementById('auth-note');
+    if(session){
+      loggedInUser = session.user;
+      note.textContent = '';
+    } else {
+      note.innerHTML = 'Log in to add this to your cart or wishlist — <a href="login.html" style="color:var(--glow);">Log In</a> or <a href="signup.html" style="color:var(--glow);">Sign Up</a>';
+    }
+  }
+
+  async function addToCart(){
+    if(!loggedInUser){ window.location.href = 'login.html'; return; }
+    const btn = document.getElementById('cart-btn');
+    await supabaseClient.from('cart_items').insert({
+      user_id: loggedInUser.id, product_slug: 'mauve-blush', product_name: 'Mauve Blush', quantity: 1
+    });
+    btn.textContent = 'Added ✓';
+    setTimeout(()=> btn.textContent = 'Add to Cart', 1500);
+  }
+
+  async function addToWishlist(){
+    if(!loggedInUser){ window.location.href = 'login.html'; return; }
+    const btn = document.getElementById('wishlist-btn');
+    await supabaseClient.from('wishlist_items').insert({
+      user_id: loggedInUser.id, product_slug: 'mauve-blush', product_name: 'Mauve Blush'
+    });
+    btn.textContent = '♥ Saved';
+    setTimeout(()=> btn.textContent = '♡ Wishlist', 1500);
+  }
+
+  checkAuth();
+</script>
+<script>
+  const shadePrices = { "Mauve Blush (₹399)": 399 };
+  const giftPrices = { none: 0, packaging: 100, quote: 30, both: 130 };
+  let uploadedPhotos = [];
+
+  function getGiftCharge(){
+    const selected = document.querySelector('input[name="giftopt"]:checked').value;
+    return giftPrices[selected] || 0;
+  }
+
+  function updateTotal(){
+    const shade = document.getElementById('ord-shade').value;
+    const qty = parseInt(document.getElementById('ord-qty').value) || 1;
+    const price = shadePrices[shade] || 0;
+    const giftCharge = getGiftCharge();
+    document.getElementById('ord-total').textContent = '₹' + ((price * qty) + giftCharge);
+  }
+  document.getElementById('ord-shade').addEventListener('change', updateTotal);
+  document.getElementById('ord-qty').addEventListener('input', updateTotal);
+
+  function updateGiftUI(){
+    const selected = document.querySelector('input[name="giftopt"]:checked').value;
+    const box = document.getElementById('gift-quote-box');
+    box.style.display = (selected === 'quote' || selected === 'both') ? 'block' : 'none';
+    updateTotal();
+  }
+
+  function setQuote(text){
+    document.getElementById('ord-giftquote').value = text;
+  }
+
+  function handlePhotos(event){
+    const files = Array.from(event.target.files).slice(0,5);
+    uploadedPhotos = files;
+    const preview = document.getElementById('ord-photo-preview');
+    preview.innerHTML = '';
+    files.forEach(file => {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      preview.appendChild(img);
+    });
+    if(event.target.files.length > 5){
+      alert('Only the first 5 photos were kept — that\'s the max we need.');
+    }
+  }
+
+  function placeOrder(){
+    const shade = document.getElementById('ord-shade').value;
+    const qty = document.getElementById('ord-qty').value || 1;
+    const name = document.getElementById('ord-name').value.trim();
+    const phone = document.getElementById('ord-phone').value.trim();
+    const pincode = document.getElementById('ord-pincode').value.trim();
+    const address = document.getElementById('ord-address').value.trim();
+    const total = document.getElementById('ord-total').textContent;
+    const giftOpt = document.querySelector('input[name="giftopt"]:checked').value;
+    const giftQuote = document.getElementById('ord-giftquote').value.trim();
+
+    if(!name || !phone || !address || !pincode){
+      alert('Please fill in your name, phone, pincode, and address before placing your order.');
+      return;
+    }
+
+    let giftLine = "No special packaging";
+    if(giftOpt === 'packaging') giftLine = "Special Packaging (+₹100), no note";
+    if(giftOpt === 'quote') giftLine = `Gift Quote Card (+₹30) — "${giftQuote || 'no message written yet'}"`;
+    if(giftOpt === 'both') giftLine = `Special Packaging + Gift Quote (+₹130) — "${giftQuote || 'no message written yet'}"`;
+
+    const photoNote = uploadedPhotos.length > 0
+      ? `I have ${uploadedPhotos.length} nail-size photo(s) ready — attaching them right after this message.`
+      : "I haven't attached nail-size photos yet — will send separately.";
+
+    const message =
+`Hi Vernis! I'd like to place an order:
+
+Shade: ${shade}
+Quantity: ${qty}
+Gift Option: ${giftLine}
+Estimated Total: ${total}
+
+Name: ${name}
+Phone: ${phone}
+Pincode: ${pincode}
+Address: ${address}
+
+${photoNote}
+
+Please confirm and share payment details.`;
+
+    const waNumber = "919056409306";
+    const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  }
+</script>
+<footer>
+  <div class="logo" style="display:flex;align-items:center;gap:10px;">
+    <svg width="30" height="30" viewBox="0 0 200 200" style="flex-shrink:0;">
+      <defs>
+        <linearGradient id="footshine" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#C9A876"/>
+          <stop offset="50%" stop-color="#7FFFD4"/>
+          <stop offset="100%" stop-color="#C9A876"/>
+        </linearGradient>
+      </defs>
+      <circle cx="100" cy="100" r="92" fill="none" stroke="#C9A876" stroke-width="2" opacity="0.6"/>
+      <path d="M70 95 L100 158 L130 95" fill="none" stroke="url(#footshine)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+      <ellipse cx="100" cy="112" rx="4" ry="11" fill="#F5F1E8" opacity="0.9" transform="rotate(15 100 112)"/>
+    </svg>
+    VERN<span style="color:var(--glow);">I</span>S
+  </div>
+  <div class="links">
+    <a href="index.html#platforms">All Platforms</a>
+    <a href="https://www.instagram.com/maisonvernisofficial/" target="_blank">Instagram</a>
+    <a href="mailto:maisonvernisofficial@gmail.com">Email</a>
+  </div>
+  <div class="copy">© 2026 Vernis. Cat eye nail lacquer, made with care.</div>
+</footer>
+
+<script>
+  document.querySelectorAll('.thumb').forEach((t,i)=>{
+    t.addEventListener('click', ()=>{
+      document.querySelectorAll('.thumb').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
