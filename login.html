@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log In — Vernis</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --obsidian:#0E0F12;
+    --emerald:#163C32;
+    --gold:#C9A876;
+    --glow:#7FFFD4;
+    --cream:#F5F1E8;
+    --charcoal:#1B1C20;
+    --line: rgba(245,241,232,0.14);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  @font-face{
+    font-family:'FrauncesFallback';
+    src:local('Georgia');
+  }
+
+  body{
+    background:var(--obsidian);
+    color:var(--cream);
+    font-family:'Outfit','Segoe UI',sans-serif;
+    overflow-x:hidden;
+  }
+
+  h1,h2,h3,.display{
+    font-family:'Fraunces','Georgia',serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+
+  a{color:inherit;text-decoration:none;}
+
+  /* ============ NAV ============ */
+  nav{
+    position:fixed;top:0;left:0;right:0;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:22px 6vw;
+    z-index:50;
+    background:linear-gradient(to bottom, rgba(14,15,18,0.85), transparent);
+    backdrop-filter:blur(2px);
+  }
+  .logo{font-size:1.4rem;letter-spacing:0.18em;text-transform:uppercase;}
+  .logo span{color:var(--glow);}
+  nav .links{display:flex;gap:32px;font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;opacity:0.85;}
+  nav .links a:hover{color:var(--gold);}
+
+  /* ============ HERO ============ */
+  .hero{
+    min-height:100vh;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    text-align:center;
+    position:relative;
+    padding:0 6vw;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(127,255,212,0.07), transparent 60%),
+      var(--obsidian);
+  }
+
+  .eyebrow{
+    font-size:0.75rem;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:22px;
+    opacity:0.9;
+  }
+
+  .hero h1{
+    font-size:clamp(3.5rem, 11vw, 8.5rem);
+    line-height:0.92;
+    position:relative;
+    background:linear-gradient(100deg, var(--cream) 35%, var(--glow) 50%, var(--gold) 58%, var(--cream) 70%);
+    background-size:300% 100%;
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    animation: sweep 6s ease-in-out infinite;
+  }
+
+  @keyframes sweep{
+    0%{background-position: 100% 0;}
+    50%{background-position: 0% 0;}
+    100%{background-position: 100% 0;}
+  }
+
+  .hero p.sub{
+    margin-top:26px;
+    font-size:1.05rem;
+    max-width:480px;
+    opacity:0.78;
+    line-height:1.6;
+  }
+
+  .hero-cta{
+    margin-top:42px;
+    display:flex;gap:16px;flex-wrap:wrap;justify-content:center;
+  }
+  .btn{
+    padding:14px 32px;
+    border-radius:2px;
+    font-size:0.8rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    border:1px solid var(--line);
+    transition:all .35s ease;
+    cursor:pointer;
+    background:transparent;
+  }
+  .btn-fill{
+    background:var(--cream);
+    color:var(--obsidian);
+    border-color:var(--cream);
+  }
+  .btn-fill:hover{background:var(--glow);border-color:var(--glow);}
+  .btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+
+  .scroll-cue{
+    position:absolute;bottom:36px;
+    font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;
+    opacity:0.5;
+    animation:bob 2.4s ease-in-out infinite;
+  }
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+
+  /* ============ SIGNATURE: MAGNET SWATCH ============ */
+  .swatch-section{
+    padding:140px 6vw 120px;
+    border-top:1px solid var(--line);
+  }
+  .section-head{
+    text-align:center;max-width:620px;margin:0 auto 70px;
+  }
+  .section-head .eyebrow{margin-bottom:14px;}
+  .section-head h2{font-size:clamp(2.2rem,5vw,3.4rem);}
+  .section-head p{margin-top:18px;opacity:0.72;line-height:1.7;font-size:1rem;}
+
+  .swatch-row{
+    display:flex;justify-content:center;gap:60px;flex-wrap:wrap;
+  }
+
+  .swatch-card{
+    width:230px;text-align:center;
+  }
+
+  .swatch{
+    width:230px;height:230px;
+    border-radius:50%;
+    position:relative;
+    margin:0 auto 24px;
+    background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.5), transparent 22%),
+                conic-gradient(from 200deg, var(--shade1) 0deg, var(--shade2) 90deg, var(--shade1) 180deg, var(--shade2) 270deg, var(--shade1) 360deg);
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.5), 0 18px 50px rgba(0,0,0,0.5);
+    overflow:hidden;
+    transition:transform .5s ease;
+  }
+  .swatch::before{
+    content:'';
+    position:absolute;inset:0;
+    background:linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.55) 48%, transparent 60%);
+    background-size:250% 250%;
+    background-position:120% 0;
+    transition:background-position 1s ease;
+  }
+  .swatch-card:hover .swatch::before{background-position:-20% 0;}
+  .swatch-card:hover .swatch{transform:scale(1.04) rotate(2deg);}
+
+  .s-emerald{--shade1:#0d3b2c; --shade2:#3ddc97;}
+  .s-amber{--shade1:#3a2308; --shade2:#e0a956;}
+  .s-violet{--shade1:#241338; --shade2:#9b7bd6;}
+  .s-mauve{--shade1:#5a2f3a; --shade2:#e8b9c4;}
+  .s-rosegold{--shade1:#6b4226; --shade2:#e8c79a;}
+  .s-amethyst{--shade1:#3a1f4d; --shade2:#b48ce0;}
+  .s-grenat{--shade1:#5c0f2e; --shade2:#d6447a;}
+  .s-fuchsianuit{--shade1:#3d0a2e; --shade2:#a83d8a;}
+
+  .swatch-card.soon{position:relative;}
+  .swatch-card.soon .tag{
+    display:inline-block;
+    margin-top:14px;
+    padding:5px 14px;
+    font-size:0.68rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    border:1px solid var(--gold);
+    color:var(--gold);
+    border-radius:20px;
+    opacity:0.9;
+  }
+
+  .swatch-card h3{font-size:1.1rem;margin-bottom:6px;}
+  .swatch-card span{font-size:0.78rem;opacity:0.6;letter-spacing:0.05em;}
+
+  /* ============ ABOUT / STORY ============ */
+  .story{
+    padding:120px 6vw;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:70px;
+    align-items:center;
+    border-top:1px solid var(--line);
+  }
+  .story-visual{
+    height:420px;
+    border-radius:4px;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(127,255,212,0.25), transparent 45%),
+      radial-gradient(circle at 70% 70%, rgba(201,168,118,0.2), transparent 50%),
+      var(--charcoal);
+    position:relative;
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .story-visual .word{
+    font-family:'Fraunces',serif;
+    font-size:5rem;
+    color:rgba(245,241,232,0.07);
+    letter-spacing:0.05em;
+  }
+  .story h2{font-size:clamp(2rem,4vw,2.8rem);margin-bottom:24px;}
+  .story p{opacity:0.75;line-height:1.85;font-size:1.02rem;margin-bottom:18px;}
+
+  /* ============ JOURNEY / GROWING LINE ============ */
+  .journey{
+    padding:120px 6vw;
+    border-top:1px solid var(--line);
+    text-align:center;
+  }
+  .journey-track{
+    max-width:900px;margin:70px auto 0;
+    position:relative;
+    display:flex;justify-content:space-between;
+  }
+  .journey-track::before{
+    content:'';position:absolute;top:11px;left:0;right:0;height:1px;
+    background:linear-gradient(to right, var(--glow), var(--gold));
+    opacity:0.4;
+  }
+  .stop{flex:1;position:relative;padding-top:36px;}
+  .stop::before{
+    content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:11px;height:11px;border-radius:50%;
+    background:var(--obsidian);border:2px solid var(--glow);
+  }
+  .stop.active::before{background:var(--glow);}
+  .stop h4{font-size:0.95rem;margin-bottom:8px;}
+  .stop p{font-size:0.82rem;opacity:0.6;line-height:1.5;max-width:160px;margin:0 auto;}
+
+  /* ============ REVIEW / DISCOUNT BANNER ============ */
+  .banner{
+    margin:0 6vw 0;
+    padding:80px 6vw;
+    border-radius:6px;
+    background:linear-gradient(120deg, rgba(127,255,212,0.08), rgba(201,168,118,0.08));
+    border:1px solid var(--line);
+    text-align:center;
+  }
+  .banner h2{font-size:clamp(1.8rem,4vw,2.6rem);margin-bottom:18px;}
+  .banner p{opacity:0.75;max-width:520px;margin:0 auto 30px;line-height:1.7;}
+
+  /* ============ FOOTER ============ */
+  footer{
+    padding:80px 6vw 40px;
+    border-top:1px solid var(--line);
+    margin-top:100px;
+    display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:30px;
+  }
+  footer .logo{font-size:1.2rem;}
+  footer .links{display:flex;gap:26px;font-size:0.8rem;opacity:0.7;}
+  footer .copy{width:100%;text-align:center;margin-top:50px;font-size:0.72rem;opacity:0.4;letter-spacing:0.05em;}
+
+  @media(max-width:760px){
+    .story{grid-template-columns:1fr;}
+    .journey-track{flex-direction:column;gap:30px;}
+    .journey-track::before{display:none;}
+    .stop{padding-top:0;padding-left:30px;}
+    .stop::before{top:4px;left:0;transform:none;}
+    .swatch-row{gap:36px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .hero h1{animation:none;}
+    .scroll-cue{animation:none;}
+  }
+
+  ::selection{background:var(--glow);color:var(--obsidian);}
+
+  /* ============ ORDER FORM ============ */
+  .order-section{
+    padding:120px 6vw;
+    border-top:1px solid var(--line);
+  }
+  .order-box{
+    max-width:560px;margin:0 auto;
+    background:var(--charcoal);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:48px;
+  }
+  .order-box label{
+    display:block;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;
+    opacity:0.7;margin-bottom:8px;margin-top:22px;
+  }
+  .order-box label:first-of-type{margin-top:0;}
+  .order-box input, .order-box select, .order-box textarea{
+    width:100%;padding:13px 14px;
+    background:var(--obsidian);
+    border:1px solid var(--line);
+    border-radius:4px;
+    color:var(--cream);
+    font-family:'Outfit',sans-serif;
+    font-size:0.95rem;
+  }
+  .order-box input:focus, .order-box select:focus, .order-box textarea:focus{
+    outline:none;border-color:var(--glow);
+  }
+  .order-row{display:flex;gap:16px;}
+  .order-row > div{flex:1;}
+  .order-total{
+    margin-top:28px;padding-top:22px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:1.05rem;
+  }
+  .order-total span:last-child{color:var(--gold);font-weight:600;}
+  .order-submit{
+    width:100%;margin-top:26px;padding:16px;
+    background:var(--glow);color:var(--obsidian);
+    border:none;border-radius:4px;
+    font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;
+    cursor:pointer;transition:opacity .3s;
+  }
+  .order-submit:hover{opacity:0.85;}
+  .order-note{font-size:0.78rem;opacity:0.55;margin-top:16px;text-align:center;line-height:1.6;}
+
+  .upload-box{
+    border:1.5px dashed var(--line);
+    border-radius:6px;
+    padding:24px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color .3s;
+  }
+  .upload-box:hover{border-color:var(--gold);}
+  .upload-box input{display:none;}
+  .upload-hint{font-size:0.78rem;opacity:0.6;margin-top:10px;line-height:1.6;}
+  .preview-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+  .preview-row img{width:64px;height:64px;object-fit:cover;border-radius:4px;border:1px solid var(--line);}
+
+  .gift-options{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+  .gift-option{
+    display:flex;align-items:flex-start;gap:10px;
+    padding:14px;border:1px solid var(--line);border-radius:6px;
+    cursor:pointer;transition:border-color .25s;
+  }
+  .gift-option:hover{border-color:var(--gold);}
+  .gift-option input{margin-top:3px;}
+  .gift-option .g-title{font-size:0.92rem;font-weight:500;}
+  .gift-option .g-price{color:var(--gold);font-size:0.8rem;}
+  .gift-option .g-desc{font-size:0.78rem;opacity:0.6;margin-top:3px;}
+  .gift-quote-box{margin-top:12px;display:none;}
+  .quote-examples{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
+  .quote-chip{
+    font-size:0.72rem;padding:6px 12px;border:1px solid var(--line);
+    border-radius:20px;cursor:pointer;opacity:0.75;transition:all .25s;
+  }
+  .quote-chip:hover{border-color:var(--glow);color:var(--glow);opacity:1;}
+  .auth-wrap{
+    min-height:100vh;
+    display:flex;align-items:center;justify-content:center;
+    padding:120px 6vw 60px;
+  }
+  .auth-card{
+    width:100%;max-width:440px;
+    background:var(--charcoal);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:44px 38px;
+  }
+  .auth-card h1{font-size:1.8rem;margin-bottom:8px;}
+  .auth-card .sub{opacity:0.65;font-size:0.9rem;margin-bottom:30px;}
+  .field{margin-bottom:18px;}
+  .field label{display:block;font-size:0.78rem;letter-spacing:0.05em;text-transform:uppercase;opacity:0.7;margin-bottom:8px;}
+  .field input{
+    width:100%;padding:12px 14px;
+    background:var(--obsidian);
+    border:1px solid var(--line);
+    border-radius:5px;
+    color:var(--cream);
+    font-family:inherit;font-size:0.95rem;
+  }
+  .field input:focus{outline:none;border-color:var(--gold);}
+  .field-note{font-size:0.75rem;opacity:0.5;margin-top:6px;}
+  .auth-submit{
+    width:100%;padding:14px;
+    background:var(--cream);color:var(--obsidian);
+    border:none;border-radius:5px;
+    font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;
+    cursor:pointer;margin-top:8px;
+    transition:background .3s;
+  }
+  .auth-submit:hover{background:var(--glow);}
+  .auth-submit:disabled{opacity:0.5;cursor:not-allowed;}
+  .auth-switch{text-align:center;margin-top:22px;font-size:0.88rem;opacity:0.75;}
+  .auth-switch a{color:var(--glow);}
+  .auth-msg{
+    margin-top:16px;font-size:0.85rem;padding:12px 14px;border-radius:5px;
+    display:none;
+  }
+  .auth-msg.error{background:rgba(255,100,100,0.1);border:1px solid rgba(255,100,100,0.4);color:#ff9b9b;}
+  .auth-msg.success{background:rgba(127,255,212,0.08);border:1px solid var(--line);color:var(--glow);}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" style="text-decoration:none;color:inherit;">
+  <div class="logo" style="display:flex;align-items:center;gap:10px;">
+    <svg width="34" height="34" viewBox="0 0 200 200" style="flex-shrink:0;">
+      <defs><linearGradient id="navshine" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#C9A876"/><stop offset="50%" stop-color="#7FFFD4"/><stop offset="100%" stop-color="#C9A876"/>
+      </linearGradient></defs>
+      <circle cx="100" cy="100" r="92" fill="none" stroke="#C9A876" stroke-width="2" opacity="0.6"/>
+      <path d="M70 95 L100 158 L130 95" fill="none" stroke="url(#navshine)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+      <ellipse cx="100" cy="112" rx="4" ry="11" fill="#F5F1E8" opacity="0.9" transform="rotate(15 100 112)"/>
+    </svg>
+    VERN<span>I</span>S
+  </div>
+  </a>
+  <div class="links">
+    <a href="index.html#shades">Shades</a>
+    <a href="signup.html">Sign Up</a>
+  </div>
+</nav>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h1 class="display">Welcome Back</h1>
+    <p class="sub">Log in to view your cart, wishlist, and referral rewards.</p>
+
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="li-email" placeholder="you@example.com">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="li-password" placeholder="Your password">
+    </div>
+
+    <button class="auth-submit" id="li-btn" onclick="handleLogin()">Log In</button>
+    <div class="auth-msg" id="li-msg"></div>
+
+    <div class="auth-switch">New here? <a href="signup.html">Create an account</a></div>
+  </div>
+</div>
+
+<script src="supabase-config.js"></script>
+<script>
+async function handleLogin(){
+  const btn = document.getElementById('li-btn');
+  const msg = document.getElementById('li-msg');
+  msg.style.display = 'none';
+
+  const email = document.getElementById('li-email').value.trim();
+  const password = document.getElementById('li-password').value;
+
+  if(!email || !password){
+    msg.textContent = "Please enter your email and password.";
+    msg.className = "auth-msg error";
+    msg.style.display = "block";
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Logging in...";
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+  if(error){
+    msg.textContent = error.message;
+    msg.className = "auth-msg error";
+    msg.style.display = "block";
+    btn.disabled = false;
+    btn.textContent = "Log In";
+    return;
+  }
+
+  window.location.href = "account.html";
+}
+</script>
+
+</body>
+</html>

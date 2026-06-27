@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Account — Vernis</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --obsidian:#0E0F12;
+    --emerald:#163C32;
+    --gold:#C9A876;
+    --glow:#7FFFD4;
+    --cream:#F5F1E8;
+    --charcoal:#1B1C20;
+    --line: rgba(245,241,232,0.14);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  @font-face{
+    font-family:'FrauncesFallback';
+    src:local('Georgia');
+  }
+
+  body{
+    background:var(--obsidian);
+    color:var(--cream);
+    font-family:'Outfit','Segoe UI',sans-serif;
+    overflow-x:hidden;
+  }
+
+  h1,h2,h3,.display{
+    font-family:'Fraunces','Georgia',serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+
+  a{color:inherit;text-decoration:none;}
+
+  /* ============ NAV ============ */
+  nav{
+    position:fixed;top:0;left:0;right:0;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:22px 6vw;
+    z-index:50;
+    background:linear-gradient(to bottom, rgba(14,15,18,0.85), transparent);
+    backdrop-filter:blur(2px);
+  }
+  .logo{font-size:1.4rem;letter-spacing:0.18em;text-transform:uppercase;}
+  .logo span{color:var(--glow);}
+  nav .links{display:flex;gap:32px;font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;opacity:0.85;}
+  nav .links a:hover{color:var(--gold);}
+
+  /* ============ HERO ============ */
+  .hero{
+    min-height:100vh;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    text-align:center;
+    position:relative;
+    padding:0 6vw;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(127,255,212,0.07), transparent 60%),
+      var(--obsidian);
+  }
+
+  .eyebrow{
+    font-size:0.75rem;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:22px;
+    opacity:0.9;
+  }
+
+  .hero h1{
+    font-size:clamp(3.5rem, 11vw, 8.5rem);
+    line-height:0.92;
+    position:relative;
+    background:linear-gradient(100deg, var(--cream) 35%, var(--glow) 50%, var(--gold) 58%, var(--cream) 70%);
+    background-size:300% 100%;
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    animation: sweep 6s ease-in-out infinite;
+  }
+
+  @keyframes sweep{
+    0%{background-position: 100% 0;}
+    50%{background-position: 0% 0;}
+    100%{background-position: 100% 0;}
+  }
+
+  .hero p.sub{
+    margin-top:26px;
+    font-size:1.05rem;
+    max-width:480px;
+    opacity:0.78;
+    line-height:1.6;
+  }
+
+  .hero-cta{
+    margin-top:42px;
+    display:flex;gap:16px;flex-wrap:wrap;justify-content:center;
+  }
+  .btn{
+    padding:14px 32px;
+    border-radius:2px;
+    font-size:0.8rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    border:1px solid var(--line);
+    transition:all .35s ease;
+    cursor:pointer;
+    background:transparent;
+  }
+  .btn-fill{
+    background:var(--cream);
+    color:var(--obsidian);
+    border-color:var(--cream);
+  }
+  .btn-fill:hover{background:var(--glow);border-color:var(--glow);}
+  .btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+
+  .scroll-cue{
+    position:absolute;bottom:36px;
+    font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;
+    opacity:0.5;
+    animation:bob 2.4s ease-in-out infinite;
+  }
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+
+  /* ============ SIGNATURE: MAGNET SWATCH ============ */
+  .swatch-section{
+    padding:140px 6vw 120px;
+    border-top:1px solid var(--line);
+  }
+  .section-head{
+    text-align:center;max-width:620px;margin:0 auto 70px;
+  }
+  .section-head .eyebrow{margin-bottom:14px;}
+  .section-head h2{font-size:clamp(2.2rem,5vw,3.4rem);}
+  .section-head p{margin-top:18px;opacity:0.72;line-height:1.7;font-size:1rem;}
+
+  .swatch-row{
+    display:flex;justify-content:center;gap:60px;flex-wrap:wrap;
+  }
+
+  .swatch-card{
+    width:230px;text-align:center;
+  }
+
+  .swatch{
+    width:230px;height:230px;
+    border-radius:50%;
+    position:relative;
+    margin:0 auto 24px;
+    background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.5), transparent 22%),
+                conic-gradient(from 200deg, var(--shade1) 0deg, var(--shade2) 90deg, var(--shade1) 180deg, var(--shade2) 270deg, var(--shade1) 360deg);
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.5), 0 18px 50px rgba(0,0,0,0.5);
+    overflow:hidden;
+    transition:transform .5s ease;
+  }
+  .swatch::before{
+    content:'';
+    position:absolute;inset:0;
+    background:linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.55) 48%, transparent 60%);
+    background-size:250% 250%;
+    background-position:120% 0;
+    transition:background-position 1s ease;
+  }
+  .swatch-card:hover .swatch::before{background-position:-20% 0;}
+  .swatch-card:hover .swatch{transform:scale(1.04) rotate(2deg);}
+
+  .s-emerald{--shade1:#0d3b2c; --shade2:#3ddc97;}
+  .s-amber{--shade1:#3a2308; --shade2:#e0a956;}
+  .s-violet{--shade1:#241338; --shade2:#9b7bd6;}
+  .s-mauve{--shade1:#5a2f3a; --shade2:#e8b9c4;}
+  .s-rosegold{--shade1:#6b4226; --shade2:#e8c79a;}
+  .s-amethyst{--shade1:#3a1f4d; --shade2:#b48ce0;}
+  .s-grenat{--shade1:#5c0f2e; --shade2:#d6447a;}
+  .s-fuchsianuit{--shade1:#3d0a2e; --shade2:#a83d8a;}
+
+  .swatch-card.soon{position:relative;}
+  .swatch-card.soon .tag{
+    display:inline-block;
+    margin-top:14px;
+    padding:5px 14px;
+    font-size:0.68rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    border:1px solid var(--gold);
+    color:var(--gold);
+    border-radius:20px;
+    opacity:0.9;
+  }
+
+  .swatch-card h3{font-size:1.1rem;margin-bottom:6px;}
+  .swatch-card span{font-size:0.78rem;opacity:0.6;letter-spacing:0.05em;}
+
+  /* ============ ABOUT / STORY ============ */
+  .story{
+    padding:120px 6vw;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:70px;
+    align-items:center;
+    border-top:1px solid var(--line);
+  }
+  .story-visual{
+    height:420px;
+    border-radius:4px;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(127,255,212,0.25), transparent 45%),
+      radial-gradient(circle at 70% 70%, rgba(201,168,118,0.2), transparent 50%),
+      var(--charcoal);
+    position:relative;
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .story-visual .word{
+    font-family:'Fraunces',serif;
+    font-size:5rem;
+    color:rgba(245,241,232,0.07);
+    letter-spacing:0.05em;
+  }
+  .story h2{font-size:clamp(2rem,4vw,2.8rem);margin-bottom:24px;}
+  .story p{opacity:0.75;line-height:1.85;font-size:1.02rem;margin-bottom:18px;}
+
+  /* ============ JOURNEY / GROWING LINE ============ */
+  .journey{
+    padding:120px 6vw;
+    border-top:1px solid var(--line);
+    text-align:center;
+  }
+  .journey-track{
+    max-width:900px;margin:70px auto 0;
+    position:relative;
+    display:flex;justify-content:space-between;
+  }
+  .journey-track::before{
+    content:'';position:absolute;top:11px;left:0;right:0;height:1px;
+    background:linear-gradient(to right, var(--glow), var(--gold));
+    opacity:0.4;
+  }
+  .stop{flex:1;position:relative;padding-top:36px;}
+  .stop::before{
+    content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:11px;height:11px;border-radius:50%;
+    background:var(--obsidian);border:2px solid var(--glow);
+  }
+  .stop.active::before{background:var(--glow);}
+  .stop h4{font-size:0.95rem;margin-bottom:8px;}
+  .stop p{font-size:0.82rem;opacity:0.6;line-height:1.5;max-width:160px;margin:0 auto;}
+
+  /* ============ REVIEW / DISCOUNT BANNER ============ */
+  .banner{
+    margin:0 6vw 0;
+    padding:80px 6vw;
+    border-radius:6px;
+    background:linear-gradient(120deg, rgba(127,255,212,0.08), rgba(201,168,118,0.08));
+    border:1px solid var(--line);
+    text-align:center;
+  }
+  .banner h2{font-size:clamp(1.8rem,4vw,2.6rem);margin-bottom:18px;}
+  .banner p{opacity:0.75;max-width:520px;margin:0 auto 30px;line-height:1.7;}
+
+  /* ============ FOOTER ============ */
+  footer{
+    padding:80px 6vw 40px;
+    border-top:1px solid var(--line);
+    margin-top:100px;
+    display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:30px;
+  }
+  footer .logo{font-size:1.2rem;}
+  footer .links{display:flex;gap:26px;font-size:0.8rem;opacity:0.7;}
+  footer .copy{width:100%;text-align:center;margin-top:50px;font-size:0.72rem;opacity:0.4;letter-spacing:0.05em;}
+
+  @media(max-width:760px){
+    .story{grid-template-columns:1fr;}
+    .journey-track{flex-direction:column;gap:30px;}
+    .journey-track::before{display:none;}
+    .stop{padding-top:0;padding-left:30px;}
+    .stop::before{top:4px;left:0;transform:none;}
+    .swatch-row{gap:36px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .hero h1{animation:none;}
+    .scroll-cue{animation:none;}
+  }
+
+  ::selection{background:var(--glow);color:var(--obsidian);}
+
+  /* ============ ORDER FORM ============ */
+  .order-section{
+    padding:120px 6vw;
+    border-top:1px solid var(--line);
+  }
+  .order-box{
+    max-width:560px;margin:0 auto;
+    background:var(--charcoal);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:48px;
+  }
+  .order-box label{
+    display:block;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;
+    opacity:0.7;margin-bottom:8px;margin-top:22px;
+  }
+  .order-box label:first-of-type{margin-top:0;}
+  .order-box input, .order-box select, .order-box textarea{
+    width:100%;padding:13px 14px;
+    background:var(--obsidian);
+    border:1px solid var(--line);
+    border-radius:4px;
+    color:var(--cream);
+    font-family:'Outfit',sans-serif;
+    font-size:0.95rem;
+  }
+  .order-box input:focus, .order-box select:focus, .order-box textarea:focus{
+    outline:none;border-color:var(--glow);
+  }
+  .order-row{display:flex;gap:16px;}
+  .order-row > div{flex:1;}
+  .order-total{
+    margin-top:28px;padding-top:22px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:1.05rem;
+  }
+  .order-total span:last-child{color:var(--gold);font-weight:600;}
+  .order-submit{
+    width:100%;margin-top:26px;padding:16px;
+    background:var(--glow);color:var(--obsidian);
+    border:none;border-radius:4px;
+    font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;
+    cursor:pointer;transition:opacity .3s;
+  }
+  .order-submit:hover{opacity:0.85;}
+  .order-note{font-size:0.78rem;opacity:0.55;margin-top:16px;text-align:center;line-height:1.6;}
+
+  .upload-box{
+    border:1.5px dashed var(--line);
+    border-radius:6px;
+    padding:24px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color .3s;
+  }
+  .upload-box:hover{border-color:var(--gold);}
+  .upload-box input{display:none;}
+  .upload-hint{font-size:0.78rem;opacity:0.6;margin-top:10px;line-height:1.6;}
+  .preview-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+  .preview-row img{width:64px;height:64px;object-fit:cover;border-radius:4px;border:1px solid var(--line);}
+
+  .gift-options{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+  .gift-option{
+    display:flex;align-items:flex-start;gap:10px;
+    padding:14px;border:1px solid var(--line);border-radius:6px;
+    cursor:pointer;transition:border-color .25s;
+  }
+  .gift-option:hover{border-color:var(--gold);}
+  .gift-option input{margin-top:3px;}
+  .gift-option .g-title{font-size:0.92rem;font-weight:500;}
+  .gift-option .g-price{color:var(--gold);font-size:0.8rem;}
+  .gift-option .g-desc{font-size:0.78rem;opacity:0.6;margin-top:3px;}
+  .gift-quote-box{margin-top:12px;display:none;}
+  .quote-examples{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
+  .quote-chip{
+    font-size:0.72rem;padding:6px 12px;border:1px solid var(--line);
+    border-radius:20px;cursor:pointer;opacity:0.75;transition:all .25s;
+  }
+  .quote-chip:hover{border-color:var(--glow);color:var(--glow);opacity:1;}
+
+  .acc-wrap{padding:130px 6vw 100px;max-width:920px;margin:0 auto;}
+  .acc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:50px;flex-wrap:wrap;gap:20px;}
+  .acc-header h1{font-size:2.2rem;}
+  .acc-header p{opacity:0.65;margin-top:6px;}
+  .logout-btn{
+    padding:10px 22px;border:1px solid var(--line);border-radius:4px;
+    font-size:0.8rem;letter-spacing:0.08em;text-transform:uppercase;
+    cursor:pointer;background:transparent;color:var(--cream);
+  }
+  .logout-btn:hover{border-color:var(--gold);color:var(--gold);}
+
+  .acc-card{
+    background:var(--charcoal);border:1px solid var(--line);border-radius:8px;
+    padding:30px 32px;margin-bottom:30px;
+  }
+  .acc-card h2{font-size:1.3rem;margin-bottom:18px;}
+  .acc-card .eyebrow{margin-bottom:6px;}
+
+  .referral-box{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .referral-code{
+    font-family:'Fraunces',serif;font-size:1.6rem;color:var(--glow);
+    background:var(--obsidian);border:1px dashed var(--gold);
+    padding:12px 22px;border-radius:6px;
+  }
+  .copy-btn{
+    padding:10px 18px;border:1px solid var(--line);border-radius:4px;
+    font-size:0.78rem;letter-spacing:0.06em;text-transform:uppercase;
+    cursor:pointer;background:transparent;color:var(--cream);
+  }
+  .copy-btn:hover{border-color:var(--glow);color:var(--glow);}
+  .progress-track{
+    width:100%;height:8px;background:var(--obsidian);border-radius:10px;
+    margin-top:18px;overflow:hidden;border:1px solid var(--line);
+  }
+  .progress-fill{height:100%;background:linear-gradient(90deg, var(--gold), var(--glow));border-radius:10px;transition:width .4s;}
+  .progress-label{font-size:0.82rem;opacity:0.65;margin-top:10px;}
+
+  .reward-item{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px 0;border-bottom:1px solid var(--line);
+  }
+  .reward-item:last-child{border-bottom:none;}
+  .reward-code-text{font-family:'Fraunces',serif;color:var(--gold);}
+  .reward-tag{font-size:0.72rem;padding:4px 10px;border-radius:12px;letter-spacing:0.05em;text-transform:uppercase;}
+  .reward-tag.unused{background:rgba(127,255,212,0.12);color:var(--glow);border:1px solid var(--glow);}
+  .reward-tag.used{background:rgba(255,255,255,0.05);color:var(--cream);opacity:0.45;border:1px solid var(--line);}
+
+  .list-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px 0;border-bottom:1px solid var(--line);
+    gap:14px;flex-wrap:wrap;
+  }
+  .list-row:last-child{border-bottom:none;}
+  .list-row .item-name{font-size:1rem;}
+  .list-row .item-meta{font-size:0.82rem;opacity:0.55;}
+  .qty-controls{display:flex;align-items:center;gap:10px;}
+  .qty-controls button{
+    width:28px;height:28px;border-radius:50%;border:1px solid var(--line);
+    background:transparent;color:var(--cream);cursor:pointer;font-size:1rem;
+  }
+  .remove-link{font-size:0.78rem;color:#ff9b9b;cursor:pointer;opacity:0.8;}
+  .remove-link:hover{opacity:1;text-decoration:underline;}
+  .empty-state{opacity:0.5;font-size:0.9rem;padding:20px 0;text-align:center;}
+
+  .cart-footer{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-top:20px;padding-top:20px;border-top:1px solid var(--line);
+    flex-wrap:wrap;gap:16px;
+  }
+  .cart-total{font-size:1.2rem;font-family:'Fraunces',serif;color:var(--glow);}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" style="text-decoration:none;color:inherit;">
+  <div class="logo" style="display:flex;align-items:center;gap:10px;">
+    <svg width="34" height="34" viewBox="0 0 200 200" style="flex-shrink:0;">
+      <defs><linearGradient id="navshine" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#C9A876"/><stop offset="50%" stop-color="#7FFFD4"/><stop offset="100%" stop-color="#C9A876"/>
+      </linearGradient></defs>
+      <circle cx="100" cy="100" r="92" fill="none" stroke="#C9A876" stroke-width="2" opacity="0.6"/>
+      <path d="M70 95 L100 158 L130 95" fill="none" stroke="url(#navshine)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+      <ellipse cx="100" cy="112" rx="4" ry="11" fill="#F5F1E8" opacity="0.9" transform="rotate(15 100 112)"/>
+    </svg>
+    VERN<span>I</span>S
+  </div>
+  </a>
+  <div class="links">
+    <a href="index.html#shades">Shades</a>
+    <a href="product-mauve-blush.html">Shop</a>
+  </div>
+</nav>
+
+<div class="acc-wrap">
+  <div class="acc-header">
+    <div>
+      <h1 class="display" id="acc-name">My Account</h1>
+      <p id="acc-email"></p>
+    </div>
+    <button class="logout-btn" onclick="handleLogout()">Log Out</button>
+  </div>
+
+  <!-- REFERRAL -->
+  <div class="acc-card">
+    <div class="eyebrow">Refer & Earn</div>
+    <h2 class="display">Your Referral Code</h2>
+    <p style="opacity:0.7;margin-bottom:20px;font-size:0.92rem;">Share this code. When 5 people sign up using it, you'll automatically get a 30% off code.</p>
+    <div class="referral-box">
+      <div class="referral-code" id="referral-code-text">—</div>
+      <button class="copy-btn" onclick="copyReferral()">Copy Code</button>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="referral-progress-fill" style="width:0%;"></div></div>
+    <div class="progress-label" id="referral-progress-label">0 of 5 referrals used</div>
+  </div>
+
+  <!-- REWARDS -->
+  <div class="acc-card">
+    <div class="eyebrow">Your Rewards</div>
+    <h2 class="display">Reward Codes</h2>
+    <div id="rewards-list"><div class="empty-state">No reward codes yet — refer 5 friends to unlock one.</div></div>
+  </div>
+
+  <!-- WISHLIST -->
+  <div class="acc-card">
+    <div class="eyebrow">Saved For Later</div>
+    <h2 class="display">Your Wishlist</h2>
+    <div id="wishlist-list"><div class="empty-state">Your wishlist is empty.</div></div>
+  </div>
+
+  <!-- CART -->
+  <div class="acc-card">
+    <div class="eyebrow">Ready to Order</div>
+    <h2 class="display">Your Cart</h2>
+    <div id="cart-list"><div class="empty-state">Your cart is empty.</div></div>
+    <div class="cart-footer" id="cart-footer" style="display:none;">
+      <div class="cart-total">Total: <span id="cart-total-text">₹0</span></div>
+      <button class="btn btn-fill" onclick="checkoutFromCart()">Checkout via WhatsApp →</button>
+    </div>
+  </div>
+</div>
+
+<script src="supabase-config.js"></script>
+<script>
+const PRODUCT_PRICES = { "mauve-blush": 399, "or-rose": 0, "rose-grenat": 0, "fuchsia-nuit": 0 };
+let currentUser = null;
+
+async function init(){
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if(!session){
+    window.location.href = "login.html";
+    return;
+  }
+  currentUser = session.user;
+  document.getElementById('acc-email').textContent = currentUser.email;
+
+  const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
+  if(profile){
+    document.getElementById('acc-name').textContent = profile.full_name ? `Welcome, ${profile.full_name.split(' ')[0]}` : "My Account";
+    document.getElementById('referral-code-text').textContent = profile.referral_code || '—';
+    const uses = profile.referral_uses_count || 0;
+    document.getElementById('referral-progress-fill').style.width = Math.min(100, (uses/5)*100) + '%';
+    document.getElementById('referral-progress-label').textContent = `${uses} of 5 referrals used`;
+  }
+
+  loadRewards();
+  loadWishlist();
+  loadCart();
+}
+
+function copyReferral(){
+  const code = document.getElementById('referral-code-text').textContent;
+  navigator.clipboard.writeText(code);
+  const btn = document.querySelector('.copy-btn');
+  btn.textContent = "Copied!";
+  setTimeout(()=> btn.textContent = "Copy Code", 1500);
+}
+
+async function loadRewards(){
+  const { data } = await supabaseClient.from('reward_codes').select('*').eq('owner_id', currentUser.id).order('created_at', {ascending:false});
+  const el = document.getElementById('rewards-list');
+  if(!data || data.length === 0) return;
+  el.innerHTML = data.map(r => `
+    <div class="reward-item">
+      <span class="reward-code-text">${r.code}</span>
+      <span class="reward-tag ${r.used ? 'used' : 'unused'}">${r.used ? 'Used' : r.discount_percent + '% Off — Ready to Use'}</span>
+    </div>
+  `).join('');
+}
+
+async function loadWishlist(){
+  const { data } = await supabaseClient.from('wishlist_items').select('*').eq('user_id', currentUser.id).order('created_at', {ascending:false});
+  const el = document.getElementById('wishlist-list');
+  if(!data || data.length === 0) return;
+  el.innerHTML = data.map(w => `
+    <div class="list-row">
+      <div><div class="item-name">${w.product_name}</div></div>
+      <div style="display:flex;gap:14px;align-items:center;">
+        <span class="remove-link" onclick="moveToCart('${w.id}','${w.product_slug}','${w.product_name}')">Move to Cart</span>
+        <span class="remove-link" onclick="removeWishlist('${w.id}')">Remove</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function removeWishlist(id){
+  await supabaseClient.from('wishlist_items').delete().eq('id', id);
+  loadWishlist();
+}
+
+async function moveToCart(wishId, slug, name){
+  await supabaseClient.from('cart_items').insert({ user_id: currentUser.id, product_slug: slug, product_name: name, quantity: 1 });
+  await supabaseClient.from('wishlist_items').delete().eq('id', wishId);
+  loadWishlist();
+  loadCart();
+}
+
+async function loadCart(){
+  const { data } = await supabaseClient.from('cart_items').select('*').eq('user_id', currentUser.id).order('created_at', {ascending:false});
+  const el = document.getElementById('cart-list');
+  const footer = document.getElementById('cart-footer');
+  if(!data || data.length === 0){
+    footer.style.display = 'none';
+    return;
+  }
+  let total = 0;
+  el.innerHTML = data.map(c => {
+    const price = PRODUCT_PRICES[c.product_slug] || 0;
+    total += price * c.quantity;
+    return `
+    <div class="list-row">
+      <div>
+        <div class="item-name">${c.product_name}</div>
+        <div class="item-meta">₹${price} each</div>
+      </div>
+      <div class="qty-controls">
+        <button onclick="changeQty('${c.id}', ${c.quantity - 1})">−</button>
+        <span>${c.quantity}</span>
+        <button onclick="changeQty('${c.id}', ${c.quantity + 1})">+</button>
+      </div>
+      <span class="remove-link" onclick="removeCart('${c.id}')">Remove</span>
+    </div>`;
+  }).join('');
+  document.getElementById('cart-total-text').textContent = `₹${total}`;
+  footer.style.display = 'flex';
+}
+
+async function changeQty(id, newQty){
+  if(newQty < 1){ return removeCart(id); }
+  await supabaseClient.from('cart_items').update({ quantity: newQty }).eq('id', id);
+  loadCart();
+}
+
+async function removeCart(id){
+  await supabaseClient.from('cart_items').delete().eq('id', id);
+  loadCart();
+}
+
+async function checkoutFromCart(){
+  const { data } = await supabaseClient.from('cart_items').select('*').eq('user_id', currentUser.id);
+  if(!data || data.length === 0) return;
+  let lines = data.map(c => `${c.product_name} x${c.quantity}`).join('\n');
+  let total = data.reduce((sum,c)=> sum + (PRODUCT_PRICES[c.product_slug]||0)*c.quantity, 0);
+  const items = data.map(c => ({ name: c.product_name, quantity: c.quantity }));
+
+  // Save the order so it shows up in the admin analytics dashboard
+  await supabaseClient.from('orders').insert({
+    user_id: currentUser.id, items: items, total: total, status: 'pending (via WhatsApp)'
+  });
+
+  // Clear the cart now that the order's been placed
+  for(const c of data){ await supabaseClient.from('cart_items').delete().eq('id', c.id); }
+
+  const message = `Hi Vernis! I'd like to order:\n\n${lines}\n\nTotal: ₹${total}\n\nMy email: ${currentUser.email}\nPlease confirm and share payment details.`;
+  const waNumber = "919056409306";
+  window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, '_blank');
+  loadCart();
+}
+
+async function handleLogout(){
+  await supabaseClient.auth.signOut();
+  window.location.href = "index.html";
+}
+
+init();
+</script>
+
+</body>
+</html>
